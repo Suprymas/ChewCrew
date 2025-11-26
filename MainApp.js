@@ -1,70 +1,57 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useAuth } from './context/AuthContext';
 import { useTheme } from './context/ThemeContext';
 
+import LoginScreen from './screens/LoginScreen';
+import SignUpScreen from "./screens/SignupScreen";
+
+
+const Stack = createNativeStackNavigator();
+
 const MainApp = () => {
+  const { user, loading } = useAuth();
   const { theme } = useTheme();
-  const insets = useSafeAreaInsets();
+
+  if (loading) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator size="large" color={theme.colors.text} />
+      </View>
+    );
+  }
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.colors.background,
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-        }
-      ]}
+    <Stack.Navigator
+      id={'root'}
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: theme.colors.background },
+      }}
+      
     >
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: theme.colors.text }]}>
-          BeReal Style App
-        </Text>
-
-        <TouchableOpacity
-          style={[
-            styles.button,
-            {
-              backgroundColor: theme.colors.button,
-              borderRadius: theme.borderRadius.lg,
-            },
-          ]}
-        >
-          <Text style={[styles.buttonText, { color: theme.colors.buttonText }]}>
-            Take Photo
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      {user ? (
+        // Authenticated Stack
+        <>
+          {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
+        </>
+      ) : (
+        // Auth Stack
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+        </>
+      )}
+    </Stack.Navigator>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  loadingContainer: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
-    padding: 24,
     justifyContent: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 32,
-  },
-  button: {
-    padding: 16,
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
 

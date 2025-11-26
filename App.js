@@ -1,30 +1,23 @@
-import {StatusBar, StyleSheet, Text, View} from 'react-native';
-import {ThemeProvider} from "./context/ThemeContext";
+import {StatusBar, View} from 'react-native';
 import {SafeAreaProvider} from "react-native-safe-area-context";
+import {NavigationContainer} from "@react-navigation/native";
+import {ThemeProvider} from "./context/ThemeContext";
 import {AuthProvider} from "./context/AuthContext";
 import MainApp from "./MainApp";
-import {NavigationContainer} from "@react-navigation/native";
 
 export default function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
         <AuthProvider>
-          <NavigationContainer>
-            <StatusBar barStyle="light-content" backgroundColor="#000000" />
-            <MainApp/>
-          </NavigationContainer>
+          <View style={{ flex: 1, backgroundColor: '#000' }}>
+            <NavigationContainer>
+              <StatusBar barStyle="light-content" backgroundColor="#000000" />
+              <MainApp/>
+            </NavigationContainer>
+          </View>
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
