@@ -4,6 +4,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from './context/AuthContext';
 import { useTheme } from './context/ThemeContext';
 
+import TabNavigator from './navigation/TabNavigator';
+
+
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from "./screens/SignupScreen";
 import HomeScreen from "./screens/HomeScreen";
@@ -35,7 +38,7 @@ const MainApp = () => {
       {user ? (
         // Authenticated Stack
         <>
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="MainTabs" component={TabNavigator} />
         </>
       ) : (
         // Auth Stack

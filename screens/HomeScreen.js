@@ -1,52 +1,70 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const { theme } = useTheme();
-  const { user, signOut } = useAuth();
   const insets = useSafeAreaInsets();
 
-  const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) {
-      Alert.alert('Error', error.message);
-    }
-  };
+  const [crews, setCrews] = useState([
+    { id: 1, name: 'Crew 1', image: null, members: 5 },
+    { id: 2, name: 'Crew 2', image: null, members: 3 },
+    { id: 3, name: 'Crew 3', image: null, members: 8 },
+  ]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <Text style={[styles.headerText, { color: theme.colors.text }]}>
-          BeReal.
+          Select Crew
         </Text>
       </View>
 
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: theme.colors.text }]}>
-          Welcome!
-        </Text>
-        <Text style={[styles.email, { color: theme.colors.textSecondary }]}>
-          {user?.email}
-        </Text>
+      <ScrollView
+        style={styles.crewList}
+        contentContainerStyle={styles.crewListContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {crews.map((crew) => (
+          <TouchableOpacity
+            key={crew.id}
+            style={[styles.crewItem, { borderBottomColor: theme.colors.border }]}
+            onPress={() => console.log('Selected:', crew.name)}
+          >
+            <View style={[styles.crewImagePlaceholder, {
+              backgroundColor: theme.colors.surface,
+              borderColor: theme.colors.button
+            }]}>
+              <Text style={styles.placeholderText}>👥</Text>
+            </View>
+            <View style={styles.crewInfo}>
+              <Text style={[styles.crewName, { color: theme.colors.text }]}>
+                {crew.name}
+              </Text>
+              <Text style={[styles.crewMembers, { color: theme.colors.textSecondary }]}>
+                {crew.members} members
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
 
+        {/* Create New Crew */}
         <TouchableOpacity
-          style={[
-            styles.button,
-            {
-              backgroundColor: theme.colors.button,
-              borderRadius: theme.borderRadius.lg,
-            },
-          ]}
-          onPress={handleSignOut}
+          style={[styles.crewItem, { borderBottomColor: theme.colors.border }]}
+          onPress={() => console.log('Create crew')}
         >
-          <Text style={[styles.buttonText, { color: theme.colors.buttonText }]}>
-            Sign Out
+          <View style={[styles.crewImagePlaceholder, {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.button
+          }]}>
+            <Text style={[styles.plusIcon, { color: theme.colors.text }]}>+</Text>
+          </View>
+          <Text style={[styles.crewName, { color: theme.colors.text }]}>
+            Create new Crew
           </Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -57,35 +75,51 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 24,
-    paddingBottom: 16,
+    paddingBottom: 20,
   },
   headerText: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
   },
-  content: {
+  crewList: {
     flex: 1,
+  },
+  crewListContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+  },
+  crewItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+  },
+  crewImagePlaceholder: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    borderWidth: 2,
+    marginRight: 16,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 8,
+  placeholderText: {
+    fontSize: 28,
   },
-  email: {
-    fontSize: 16,
-    marginBottom: 32,
+  crewInfo: {
+    flex: 1,
   },
-  button: {
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontSize: 16,
+  crewName: {
+    fontSize: 20,
     fontWeight: '600',
+    marginBottom: 4,
+  },
+  crewMembers: {
+    fontSize: 14,
+  },
+  plusIcon: {
+    fontSize: 36,
+    fontWeight: '300',
   },
 });
 
