@@ -5,8 +5,9 @@ import { View, Text, StyleSheet } from 'react-native';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
-import CameraScreen from '../screens/CameraScreen';
+import CameraScreen from '../screens/NewPostScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import NewPostScreen from "../screens/NewPostScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -45,7 +46,7 @@ const TabNavigator = () => {
 
       <Tab.Screen
         name="Camera"
-        component={CameraScreen}
+        component={NewPostScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <View style={[styles.cameraIconContainer, {
