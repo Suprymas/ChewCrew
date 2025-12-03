@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
@@ -12,6 +10,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import RegularTextInput from "../components/RegularTextInput";
+import {WhiteMainButton} from "../components/WhiteMainButton";
+import {BlackMainButton} from "../components/BlackMainButton";
 
 const SignUpScreen = ({ navigation }) => {
   const { theme } = useTheme();
@@ -45,8 +46,6 @@ const SignUpScreen = ({ navigation }) => {
 
     if (error) {
       Alert.alert('Sign Up Failed', error.message);
-    } else {
-      Alert.alert('Success', 'Check your email to confirm your account');
     }
   };
 
@@ -64,80 +63,40 @@ const SignUpScreen = ({ navigation }) => {
         </Text>
 
         <View style={styles.form}>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.surface,
-                color: theme.colors.text,
-                borderRadius: theme.borderRadius.md,
-              },
-            ]}
-            placeholder="Email"
-            placeholderTextColor={theme.colors.textSecondary}
+          <RegularTextInput
             value={email}
+            theme={theme}
+            placeholder="Email"
             onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
           />
 
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.surface,
-                color: theme.colors.text,
-                borderRadius: theme.borderRadius.md,
-              },
-            ]}
-            placeholder="Password"
-            placeholderTextColor={theme.colors.textSecondary}
+          <RegularTextInput
             value={password}
+            theme={theme}
+            placeholder="Password"
             onChangeText={setPassword}
-            secureTextEntry
           />
 
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.surface,
-                color: theme.colors.text,
-                borderRadius: theme.borderRadius.md,
-              },
-            ]}
-            placeholder="Confirm Password"
-            placeholderTextColor={theme.colors.textSecondary}
+          <RegularTextInput
             value={confirmPassword}
+            theme={theme}
+            placeholder="Confirm Password"
             onChangeText={setConfirmPassword}
-            secureTextEntry
           />
 
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {
-                backgroundColor: theme.colors.button,
-                borderRadius: theme.borderRadius.lg,
-              },
-            ]}
+          <WhiteMainButton
             onPress={handleSignUp}
-            disabled={loading}
-          >
-            <Text style={[styles.buttonText, { color: theme.colors.buttonText }]}>
-              {loading ? 'Creating Account...' : 'Sign Up'}
-            </Text>
-          </TouchableOpacity>
+            loading={loading}
+            theme={theme}
+            text={'Sign Up'}
+          />
 
-          <TouchableOpacity
-            style={styles.linkButton}
+          <BlackMainButton
             onPress={() => navigation.navigate('Login')}
-          >
-            <Text style={[styles.linkText, { color: theme.colors.text }]}>
-              Already have an account?{' '}
-              <Text style={styles.linkTextBold}>Sign In</Text>
-            </Text>
-          </TouchableOpacity>
+            loading={loading}
+            theme={theme}
+            text={'Sign Up'}
+          />
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -167,26 +126,7 @@ const styles = StyleSheet.create({
   input: {
     padding: 16,
     fontSize: 16,
-  },
-  button: {
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  linkButton: {
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  linkText: {
-    fontSize: 14,
-  },
-  linkTextBold: {
-    fontWeight: '600',
-  },
+  }
 });
 
 export default SignUpScreen;

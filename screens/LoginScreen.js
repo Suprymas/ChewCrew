@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
@@ -12,6 +10,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import {WhiteMainButton} from "../components/WhiteMainButton";
+import {BlackMainButton} from "../components/BlackMainButton";
+import RegularTextInput from "../components/RegularTextInput";
 
 const LoginScreen = ({ navigation }) => {
   const { theme } = useTheme();
@@ -51,63 +52,34 @@ const LoginScreen = ({ navigation }) => {
         </Text>
 
         <View style={styles.form}>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.surface,
-                color: theme.colors.text,
-                borderRadius: theme.borderRadius.md,
-              },
-            ]}
-            placeholder="Email"
-            placeholderTextColor={theme.colors.textSecondary}
+          <RegularTextInput
             value={email}
+            theme={theme}
+            placeholder="Email"
             onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
           />
 
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.surface,
-                color: theme.colors.text,
-                borderRadius: theme.borderRadius.md,
-              },
-            ]}
-            placeholder="Password"
-            placeholderTextColor={theme.colors.textSecondary}
+          <RegularTextInput
             value={password}
-            secureTextEntry
+            theme={theme}
+            placeholder="Password"
+            onChangeText={setPassword}
+            secureTextEntry={true}
           />
 
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {
-                backgroundColor: theme.colors.button,
-                borderRadius: theme.borderRadius.lg,
-              },
-            ]}
+          <WhiteMainButton
             onPress={handleLogin}
-            disabled={loading}
-          >
-            <Text style={[styles.buttonText, { color: theme.colors.buttonText }]}>
-              {loading ? 'Signing In...' : 'Sign In'}
-            </Text>
-          </TouchableOpacity>
+            loading={loading}
+            theme={theme}
+            text={'Sign In'}
+          />
 
-          <TouchableOpacity
-            style={styles.linkButton}
+          <BlackMainButton
             onPress={() => navigation.navigate('SignUp')}
-          >
-            <Text style={[styles.linkText, { color: theme.colors.text }]}>
-              Don't have an account?{' '}
-              <Text style={styles.linkTextBold}>Sign Up</Text>
-            </Text>
-          </TouchableOpacity>
+            loading={loading}
+            theme={theme}
+            text={'Sign Up'}
+          />
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -133,29 +105,6 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 16,
-  },
-  input: {
-    padding: 16,
-    fontSize: 16,
-  },
-  button: {
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  linkButton: {
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  linkText: {
-    fontSize: 14,
-  },
-  linkTextBold: {
-    fontWeight: '600',
   },
 });
 

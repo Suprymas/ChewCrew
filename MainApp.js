@@ -6,6 +6,7 @@ import { useTheme } from './context/ThemeContext';
 
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from "./screens/SignupScreen";
+import HomeScreen from "./screens/HomeScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -34,7 +35,7 @@ const MainApp = () => {
       {user ? (
         // Authenticated Stack
         <>
-          {/*<Stack.Screen name="Home" component={HomeScreen} />*/}
+          <Stack.Screen name="Home" component={HomeScreen} />
         </>
       ) : (
         // Auth Stack

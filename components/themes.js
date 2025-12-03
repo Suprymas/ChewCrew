@@ -13,6 +13,9 @@ export const theme = {
     buttonText: '#000000',
     border: '#333333',
 
+    buttonSecondary: '#000000',
+    buttonSecondaryBorder: '#FFFFFF',
+
     // Accents
     primary: '#FFFFFF',
     error: '#FF3B30',
