@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import {Pressable, StyleSheet, Text} from "react-native";
 
 export const WhiteMainButton = ({onPress, loading, theme, text}) => {
