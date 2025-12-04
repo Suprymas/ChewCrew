@@ -9,7 +9,7 @@ import TabNavigator from './navigation/TabNavigator';
 
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from "./screens/SignupScreen";
-import HomeScreen from "./screens/HomeScreen";
+import CreateCrewScreen from "./screens/CreateCrewScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -39,6 +39,7 @@ const MainApp = () => {
         // Authenticated Stack
         <>
           <Stack.Screen name="MainTabs" component={TabNavigator} />
+          <Stack.Screen name="CreateCrew" component={CreateCrewScreen} />
         </>
       ) : (
         // Auth Stack

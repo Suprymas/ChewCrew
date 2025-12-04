@@ -33,7 +33,7 @@ const HomeScreen = ({ navigation }) => {
           <CrewListElement crew={crew} key={crew.id} theme={theme}/>
         ))}
 
-        <CreateCrewButton theme={theme} onPress={() => console.log('Create crew')}/>
+        <CreateCrewButton theme={theme} onPress={() => navigation.navigate('CreateCrew')} />
       </ScrollView>
     </View>
   );
