@@ -3,8 +3,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-
-const ProfileScreen = () => {
+import { JoinCrewButton } from '../components/JoinCrewButton';
+import { CreateCrewButton } from '../components/CreateCrewButton';
+const ProfileScreen = ({navigation}) => {
   const { theme } = useTheme();
   const { user, signOut } = useAuth();
   const insets = useSafeAreaInsets();
@@ -33,6 +34,10 @@ const ProfileScreen = () => {
           <Text style={[styles.buttonText, { color: theme.colors.buttonText }]}>
             Sign Out
           </Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <CreateCrewButton theme={theme} onPress={() => navigation.navigate('CreateCrew')} />
+          <JoinCrewButton theme={theme} onPress={()=>navigation.navigate('JoinCrew')}/>
         </TouchableOpacity>
       </View>
     </View>
