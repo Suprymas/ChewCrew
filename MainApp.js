@@ -12,6 +12,7 @@ import SignUpScreen from "./screens/SignupScreen";
 import HomeScreen from "./screens/HomeScreen";
 import CameraScreen from './screens/CameraScreen';
 import CreateCrewScreen from "./screens/CreateCrewScreen";
+import JoinCrewScreen from './screens/JoinCrewScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -42,6 +43,7 @@ const MainApp = () => {
         <>
           <Stack.Screen name="MainTabs" component={TabNavigator} />
           <Stack.Screen name="CreateCrew" component={CreateCrewScreen} />
+          <Stack.Screen name="JoinCrew" component={JoinCrewScreen}/>
           <Stack.Screen name="Camera" component={CameraScreen} />
         </>
       ) : (

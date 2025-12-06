@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import CrewListElement from "../components/CrewListElement";
 import {CreateCrewButton} from "../components/CreateCrewButton";
+import { JoinCrewButton } from '../components/JoinCrewButton';
 
 
 const HomeScreen = ({ navigation }) => {
@@ -29,11 +30,12 @@ const HomeScreen = ({ navigation }) => {
         contentContainerStyle={styles.crewListContent}
         showsVerticalScrollIndicator={false}
       >
+  
         {crews.map((crew) => (
           <CrewListElement crew={crew} key={crew.id} theme={theme}/>
         ))}
-
         <CreateCrewButton theme={theme} onPress={() => navigation.navigate('CreateCrew')} />
+        <JoinCrewButton theme={theme} onPress={()=>navigation.navigate('JoinCrew')}/>
       </ScrollView>
     </View>
   );
