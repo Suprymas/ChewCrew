@@ -11,8 +11,8 @@ export function ImageInput({ theme, onPress, image }) {
     }]}
     onPress={onPress}
   >
-    {true ? (
-      <Image source={{uri: 'https://dmihcudttzzrzktighnu.supabase.co/storage/v1/object/public/photos/ca481008-50a1-4f09-b869-2c4fe74ec399/1765045596901.jpg'}} style={styles.image}/>
+    {image ? (
+      <Image source={{uri: image }} style={styles.image}/>
     ) : (
       <Text style={styles.cameraIcon}>📷</Text>
     )}

@@ -35,10 +35,10 @@ const ProfileScreen = ({navigation}) => {
             Sign Out
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <View>
           <CreateCrewButton theme={theme} onPress={() => navigation.navigate('CreateCrew')} />
           <JoinCrewButton theme={theme} onPress={()=>navigation.navigate('JoinCrew')}/>
-        </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
