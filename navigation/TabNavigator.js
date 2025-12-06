@@ -8,6 +8,7 @@ import HomeScreen from '../screens/HomeScreen';
 import CameraScreen from '../screens/NewPostScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NewPostScreen from "../screens/NewPostScreen";
+import FeedScreen from '../screens/FeedScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -33,12 +34,12 @@ const TabNavigator = () => {
       }}
     >
       <Tab.Screen
-        name="Crews"
-        component={HomeScreen}
+        name="Feed"
+        component={FeedScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <View style={styles.tabIconContainer}>
-              <Text style={[styles.tabIcon, { fontSize: size + 4 }]}>👥</Text>
+              <Text style={[styles.tabIcon, { fontSize: size + 4 }]}>👀</Text>
             </View>
           ),
         }}
