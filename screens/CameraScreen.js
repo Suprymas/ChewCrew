@@ -13,12 +13,18 @@ import {
   ActivityIndicator 
 } from 'react-native';
 import { supabase } from '../lib/supabase';
-export default function CameraScreen() {
-  const [facing, setFacing] = useState<CameraType>('back');
+import {useAuth} from "../context/AuthContext";
+
+
+const CameraScreen = ({ route }) => {
+  const { onPhotoTaken, setUrl } = route.params;
+  const { user } = useAuth();
+  const [facing, setFacing] = useState('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedPhoto, setCapturedPhoto] = useState(null);
   const [uploading, setUploading] = useState(false); 
   const cameraRef = useRef(null);
+
 
   if (!permission) return <View />;
 
@@ -42,6 +48,7 @@ const handleTakePhoto = async () => {
           quality: 0.5, 
           base64: true, 
           exif: false,
+          shutterSound: false
         });
         setCapturedPhoto(photo); 
       } catch (error) {
@@ -56,9 +63,6 @@ const uploadToSupabase = async () => {
     setUploading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
-
       const fileName = `${user.id}/${Date.now()}.jpg`;
 
       const fileData = decode(capturedPhoto.base64);
@@ -86,15 +90,15 @@ const uploadToSupabase = async () => {
         ]);
 
       if (dbError) throw dbError;
-
+      onPhotoTaken(capturedPhoto.uri);
+      setUrl(publicUrlData.publicUrl);
       Alert.alert("Success", "Photo uploaded successfully!");
-      setCapturedPhoto(null);
-
     } catch (error) {
       console.error(error);
       Alert.alert("Upload Failed", error.message);
     } finally {
       setUploading(false);
+      setCapturedPhoto(null);
     }
   };
 
@@ -154,11 +158,13 @@ const uploadToSupabase = async () => {
   );
 }
 
-const uriToBlob = (uri: string): Promise<Blob> => {
+export default CameraScreen;
+
+const uriToBlob = (uri) => {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.onload = function () {
-      resolve(xhr.response as Blob);
+      resolve(xhr.response);
     };
     xhr.onerror = function (e) {
       console.log(e);

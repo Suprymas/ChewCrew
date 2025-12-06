@@ -1,5 +1,6 @@
 import {Dimensions, Image, StyleSheet, Text, TouchableOpacity} from "react-native";
 import React from "react";
+import {theme} from "./themes";
 
 export function ImageInput({ theme, onPress, image }) {
   return <TouchableOpacity
@@ -10,8 +11,8 @@ export function ImageInput({ theme, onPress, image }) {
     }]}
     onPress={onPress}
   >
-    {image ? (
-      <Image source={{uri: image}} style={styles.image}/>
+    {true ? (
+      <Image source={{uri: 'https://dmihcudttzzrzktighnu.supabase.co/storage/v1/object/public/photos/ca481008-50a1-4f09-b869-2c4fe74ec399/1765045596901.jpg'}} style={styles.image}/>
     ) : (
       <Text style={styles.cameraIcon}>📷</Text>
     )}
@@ -20,7 +21,7 @@ export function ImageInput({ theme, onPress, image }) {
 
 const styles = StyleSheet.create({
   cameraContainer: {
-    aspectRatio: 16 / 9,
+    aspectRatio: 3 / 4,
     borderWidth: 2,
     margin: 15,
     justifyContent: 'center',
@@ -31,6 +32,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+    borderRadius: theme.borderRadius.lg,
   },
   cameraIcon: {
     fontSize: 64,

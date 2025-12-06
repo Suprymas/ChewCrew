@@ -12,20 +12,6 @@ import {ThemeProvider} from "./context/ThemeContext";
 import {AuthProvider} from "./context/AuthContext";
 import MainApp from "./MainApp";
 
-{
-  "expo"; {
-    "plugins"; [
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow $(ChewCrew) to access your camera",
-          "microphonePermission": "Allow $(ChewCrew) to access your microphone",
-          "recordAudioAndroid": true
-        }
-      ]
-    ]
-  }
-}
 
 
 export default function App() {

@@ -45,7 +45,7 @@ const TabNavigator = () => {
       />
 
       <Tab.Screen
-        name="Camera"
+        name="NewPost"
         component={NewPostScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
