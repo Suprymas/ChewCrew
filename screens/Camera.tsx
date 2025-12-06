@@ -1,17 +1,26 @@
+import 'react-native-url-polyfill/auto'; 
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
-
+import { decode } from 'base64-arraybuffer';
+import { 
+  Button, 
+  StyleSheet, 
+  Text, 
+  TouchableOpacity, 
+  View, 
+  Image, 
+  Alert, 
+  ActivityIndicator 
+} from 'react-native';
+import { supabase } from '../lib/supabase';
 export default function CameraScreen() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
-  const [capturedPhoto, setCapturedPhoto] = useState(null); // Store the photo
-  
+  const [capturedPhoto, setCapturedPhoto] = useState(null);
+  const [uploading, setUploading] = useState(false); 
   const cameraRef = useRef(null);
 
-  if (!permission) {
-    return <View />;
-  }
+  if (!permission) return <View />;
 
   if (!permission.granted) {
     return (
@@ -26,23 +35,70 @@ export default function CameraScreen() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   }
 
-  const handleTakePhoto = async () => {
+const handleTakePhoto = async () => {
     if (cameraRef.current) {
       try {
         const photo = await cameraRef.current.takePictureAsync({
-          quality: 1,
+          quality: 0.5, 
+          base64: true, 
+          exif: false,
         });
-        
-        console.log('Photo captured!', photo.uri);
-        setCapturedPhoto(photo); // Save the photo
-        
+        setCapturedPhoto(photo); 
       } catch (error) {
         console.error("Error taking photo:", error);
       }
     }
   };
 
-  // If a photo was captured, show the preview
+const uploadToSupabase = async () => {
+    if (!capturedPhoto || !capturedPhoto.base64) return;
+    
+    setUploading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
+      const fileName = `${user.id}/${Date.now()}.jpg`;
+
+      const fileData = decode(capturedPhoto.base64);
+
+      const { error: uploadError } = await supabase.storage
+        .from('photos')
+        .upload(fileName, fileData, {
+          contentType: 'image/jpeg',
+          upsert: true, 
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('photos')
+        .getPublicUrl(fileName);
+
+      const { error: dbError } = await supabase
+        .from('user_photos')
+        .insert([
+          { 
+            user_id: user.id, 
+            image_url: publicUrlData.publicUrl 
+          }
+        ]);
+
+      if (dbError) throw dbError;
+
+      Alert.alert("Success", "Photo uploaded successfully!");
+      setCapturedPhoto(null);
+
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Upload Failed", error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // --- Render Preview ---
   if (capturedPhoto) {
     return (
       <View style={styles.container}>
@@ -50,21 +106,27 @@ export default function CameraScreen() {
           source={{ uri: capturedPhoto.uri }} 
           style={styles.previewImage}
         />
+        
+        {uploading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#ffffff" />
+            <Text style={{color: 'white', marginTop: 10}}>Uploading...</Text>
+          </View>
+        )}
+
         <View style={styles.previewButtonContainer}>
           <TouchableOpacity 
             style={[styles.button, styles.retakeButton]}
-            onPress={() => setCapturedPhoto(null)} // Go back to camera
+            onPress={() => setCapturedPhoto(null)}
+            disabled={uploading}
           >
             <Text style={styles.buttonText}>Retake</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={[styles.button, styles.confirmButton]}
-            onPress={() => {
-              console.log('Photo confirmed:', capturedPhoto.uri);
-              // TODO: Handle the confirmed photo (upload, save, navigate, etc.)
-              setCapturedPhoto(null); // Reset after confirming
-            }}
+            style={[styles.button, styles.confirmButton, uploading && styles.disabledButton]}
+            onPress={uploadToSupabase} 
+            disabled={uploading}
           >
             <Text style={styles.buttonText}>Confirm</Text>
           </TouchableOpacity>
@@ -73,34 +135,40 @@ export default function CameraScreen() {
     );
   }
 
-  // Otherwise show the camera
+  // --- Render Camera ---
   return (
     <View style={styles.container}>
-      <CameraView 
-        style={styles.camera} 
-        facing={facing} 
-        ref={cameraRef}
-      >
+      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
         <View style={styles.buttonContainer}>
-          
-          {/* Flip Button (Left) */}
           <TouchableOpacity style={styles.iconButton} onPress={toggleCameraFacing}>
             <Text style={styles.text}>Flip</Text>
           </TouchableOpacity>
 
-          {/* Shutter Button (Center) */}
           <TouchableOpacity style={styles.shutterButton} onPress={handleTakePhoto}>
             <View style={styles.shutterInner} />
           </TouchableOpacity>
-
-          {/* Spacer to balance layout (Right) */}
           <View style={styles.iconButton} />
-          
         </View>
       </CameraView>
     </View>
   );
 }
+
+const uriToBlob = (uri: string): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      resolve(xhr.response as Blob);
+    };
+    xhr.onerror = function (e) {
+      console.log(e);
+      reject(new TypeError("Network request failed"));
+    };
+    xhr.responseType = "blob";
+    xhr.open("GET", uri, true);
+    xhr.send(null);
+  });
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -118,6 +186,13 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
   },
   buttonContainer: {
     position: 'absolute',
@@ -172,6 +247,9 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     backgroundColor: '#4CAF50',
+  },
+  disabledButton: {
+    backgroundColor: '#A5D6A7', 
   },
   buttonText: {
     color: 'white',

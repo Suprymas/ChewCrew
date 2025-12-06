@@ -1,3 +1,10 @@
+if (global.FormData) {
+  global.FormData.prototype.append = function (key, value) {
+    //workaround for expo bug
+    this._parts.push([key, value]);
+  };
+}
+
 import {StatusBar, View} from 'react-native';
 import {SafeAreaProvider} from "react-native-safe-area-context";
 import {NavigationContainer} from "@react-navigation/native";
