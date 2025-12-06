@@ -9,7 +9,8 @@ import TabNavigator from './navigation/TabNavigator';
 
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from "./screens/SignupScreen";
-import CreateCrewScreen from "./screens/CreateCrewScreen";
+import HomeScreen from "./screens/HomeScreen";
+import Camera from './screens/Camera';
 
 
 const Stack = createNativeStackNavigator();
@@ -39,7 +40,8 @@ const MainApp = () => {
         // Authenticated Stack
         <>
           <Stack.Screen name="MainTabs" component={TabNavigator} />
-          <Stack.Screen name="CreateCrew" component={CreateCrewScreen} />
+                    <Stack.Screen name="Camera" component={Camera} />
+
         </>
       ) : (
         // Auth Stack
