@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import RegularTextInput from "../components/RegularTextInput";
 import * as Clipboard from 'expo-clipboard';
-import {supabase} from "../lib/supabase";
+import { supabase } from "../lib/supabase";
 
 const CrewCreationScreen = ({ navigation }) => {
   const { theme } = useTheme();
@@ -20,8 +20,10 @@ const CrewCreationScreen = ({ navigation }) => {
   const [crewName, setCrewName] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState('👥');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [inviteLink, setInviteLink] = useState(null);
+  
+  const [accessCode, setAccessCode] = useState(null);
   const [isCreated, setIsCreated] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const emojis = [
     '👥', '🍕', '🍔', '🍜', '🍱', '🍛', '🍝', '🥗',
@@ -35,27 +37,44 @@ const CrewCreationScreen = ({ navigation }) => {
       return;
     }
 
-    const {data, error} = await supabase
-      .from('crew')
-      .insert({name: crewName.trim(), icon: selectedEmoji});
+    setLoading(true);
 
-    const newCrewId = `crew_${Date.now()}`;
-    const newInviteLink = `https://app.crew.com/invite/${newCrewId}`;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
 
-    console.log('Create crew:', {
-      crewId: newCrewId,
-      crewName,
-      selectedEmoji,
-    });
+      if (!user) {
+        throw new Error("No user found. Please log in.");
+      }
+      // 1. Insert and use .select() to get the auto-generated data back
+      const { data, error } = await supabase
+        .from('crew')
+        .insert({
+          name: crewName.trim(), 
+          icon: selectedEmoji,
+          creator: user.id
+        })
+        .select(); 
 
-    setInviteLink(newInviteLink);
-    setIsCreated(true);
-    Alert.alert('Success!', 'Crew created! Share the invite link with your friends.');
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const newCrew = data[0];
+        setAccessCode(newCrew.access_code);
+        setIsCreated(true);
+        Alert.alert('Success!', 'Crew created successfully.');
+      }
+    } catch (error) {
+      console.error('Error creating crew:', error);
+      Alert.alert('Error', error.message || 'Failed to create crew');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCopyLink = async () => {
-    if (inviteLink) {
-      await Clipboard.setStringAsync(inviteLink);
+  const handleCopyCode = async () => {
+    if (accessCode) {
+      await Clipboard.setStringAsync(accessCode);
+      Alert.alert('Copied', 'Access code copied to clipboard!');
     }
   };
 
@@ -75,8 +94,9 @@ const CrewCreationScreen = ({ navigation }) => {
 
         {!isCreated ? (
           <TouchableOpacity
-            style={[styles.createButton, { borderColor: theme.colors.button }]}
+            style={[styles.createButton, { borderColor: theme.colors.button, opacity: loading ? 0.5 : 1 }]}
             onPress={handleCreate}
+            disabled={loading}
           >
             <Text style={[styles.createIcon, { color: theme.colors.text }]}>✓</Text>
           </TouchableOpacity>
@@ -159,41 +179,41 @@ const CrewCreationScreen = ({ navigation }) => {
             value={crewName}
             onChangeText={setCrewName}
             placeholder="Enter crew name..."
-            editable={!isCreated}
+            editable={!isCreated && !loading}
           />
         </View>
 
-        {/* Invite Link - Only shown after crew is created */}
-        {inviteLink && isCreated && (
+        {/* Access Code - Replaces Invite Link */}
+        {isCreated && accessCode && (
           <View style={styles.section}>
             <Text style={[styles.sectionLabel, { color: theme.colors.text }]}>
-              Invite Link
+              Crew Access Code
             </Text>
+            
+            <View style={[styles.codeContainer, {
+              backgroundColor: theme.colors.surface,
+              borderColor: theme.colors.border,
+              borderRadius: theme.borderRadius.md,
+            }]}>
+              <Text style={[styles.codeText, { color: theme.colors.primary || theme.colors.text }]}>
+                {accessCode}
+              </Text>
+            </View>
+
             <TouchableOpacity
-              style={[styles.inviteLinkContainer, {
-                backgroundColor: theme.colors.surface,
-                borderColor: theme.colors.border,
+              style={[styles.copyButtonLarge, {
+                backgroundColor: theme.colors.button,
                 borderRadius: theme.borderRadius.md,
               }]}
-              onPress={handleCopyLink}
+              onPress={handleCopyCode}
             >
-              <Text
-                style={[styles.inviteLinkText, { color: theme.colors.text }]}
-                numberOfLines={1}
-              >
-                {inviteLink}
+              <Text style={[styles.copyButtonText, { color: theme.colors.buttonText }]}>
+                Copy Code
               </Text>
-              <View style={[styles.copyButton, {
-                backgroundColor: theme.colors.button,
-                borderRadius: theme.borderRadius.sm,
-              }]}>
-                <Text style={[styles.copyButtonText, { color: theme.colors.buttonText }]}>
-                  Copy
-                </Text>
-              </View>
             </TouchableOpacity>
+            
             <Text style={[styles.inviteHint, { color: theme.colors.textSecondary }]}>
-              Share this link to invite people to your crew
+              Share this code so others can join your crew!
             </Text>
           </View>
         )}
@@ -288,28 +308,33 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginBottom: 8,
   },
-  inviteLinkContainer: {
-    flexDirection: 'row',
+  // New Styles for Access Code
+  codeContainer: {
+    paddingVertical: 20,
     alignItems: 'center',
-    padding: 12,
+    justifyContent: 'center',
     borderWidth: 1,
-    gap: 12,
+    borderStyle: 'dashed',
+    marginBottom: 16,
   },
-  inviteLinkText: {
-    flex: 1,
-    fontSize: 14,
+  codeText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    letterSpacing: 4,
   },
-  copyButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 16,
+  copyButtonLarge: {
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   copyButtonText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
   },
   inviteHint: {
-    fontSize: 12,
-    marginTop: 8,
+    fontSize: 13,
+    marginTop: 12,
+    textAlign: 'center',
   },
 });
 
