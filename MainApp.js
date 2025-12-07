@@ -9,7 +9,6 @@ import TabNavigator from './navigation/TabNavigator';
 
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from "./screens/SignupScreen";
-import HomeScreen from "./screens/HomeScreen";
 import CameraScreen from './screens/CameraScreen';
 import CreateCrewScreen from "./screens/CreateCrewScreen";
 import JoinCrewScreen from './screens/JoinCrewScreen';

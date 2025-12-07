@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
-import { Ionicons } from '@expo/vector-icons'; // Assuming you use Expo
+import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 
 const JoinCrewScreen = ({ navigation }) => {
@@ -81,7 +81,7 @@ const JoinCrewScreen = ({ navigation }) => {
         'Welcome Aboard!',
         `You have successfully joined ${crew.icon || ''} ${crew.name}`,
         [
-          { text: "OK", onPress: () => navigation.navigate('Home') } // Or navigate back
+          { text: "OK", onPress: () => navigation.navigate('Feed') }
         ]
       );
 
@@ -97,7 +97,6 @@ const JoinCrewScreen = ({ navigation }) => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         
-        {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
           <TouchableOpacity 
             onPress={() => navigation.goBack()}

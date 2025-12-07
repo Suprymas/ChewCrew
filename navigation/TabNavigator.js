@@ -4,8 +4,6 @@ import { useTheme } from '../context/ThemeContext';
 import { View, Text, StyleSheet } from 'react-native';
 
 // Import screens
-import HomeScreen from '../screens/HomeScreen';
-import CameraScreen from '../screens/NewPostScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NewPostScreen from "../screens/NewPostScreen";
 import FeedScreen from '../screens/FeedScreen';

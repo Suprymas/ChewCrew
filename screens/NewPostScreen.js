@@ -15,7 +15,7 @@ import {TagsInput} from "../components/TagsInput";
 import {WhiteMainButton} from "../components/WhiteMainButton";
 import {supabase} from "../lib/supabase";
 
-const CameraScreen = ({ navigation }) => {
+const NewPostScreen = ({ navigation }) => {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -185,7 +185,6 @@ const CameraScreen = ({ navigation }) => {
 
         <ImageInput theme={theme} onPress={handleTakePhoto} image={image}/>
 
-        {/* Form Fields */}
         <View style={styles.form}>
 
           <NewPostFieldButton
@@ -297,4 +296,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CameraScreen;
+export default NewPostScreen;
