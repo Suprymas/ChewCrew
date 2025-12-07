@@ -1,3 +1,3 @@
-# To test the app login using provided credentials
+# To test the app signin using provided credentials
 ## Email: user@test.com
 ## Password: password
