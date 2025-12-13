@@ -14,9 +14,12 @@ import {NewPostModal} from "../components/NewPostModal";
 import {TagsInput} from "../components/TagsInput";
 import {WhiteMainButton} from "../components/WhiteMainButton";
 import {supabase} from "../lib/supabase";
+import {useAuth} from "../context/AuthContext";
+import {decode} from "base64-arraybuffer";
 
 const NewPostScreen = ({ navigation }) => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
 
   const [whoDidYouCookFor, setWhoDidYouCookFor] = useState('');
@@ -39,14 +42,19 @@ const NewPostScreen = ({ navigation }) => {
     tags: ['Healthy', 'Quick', 'Budget', 'Gourmet', 'Comfort Food', 'Vegan', 'Vegetarian', 'Gluten-Free', 'Kid-Friendly', 'Date Night'],
   };
 
+  // Check if each step is complete
+  const isImageComplete = image !== null;
+  const isWhoComplete = whoDidYouCookFor !== '';
+  const isCostComplete = costPerServe !== '';
+  const isTimeComplete = timeToCook !== '';
+  const isMealComplete = meal !== '';
+  const isTagsComplete = tags.length > 0;
+  const isAllComplete = isImageComplete && isWhoComplete && isCostComplete && isTimeComplete && isMealComplete && isTagsComplete;
   //camera function
   const handleTakePhoto = () => {
     navigation.navigate('Camera', {
       onPhotoTaken: (photo) => {
         setImage(photo);
-      },
-      setUrl: (url) => {
-        setImageUrl(url);
       }
     });
   }
@@ -63,22 +71,36 @@ const NewPostScreen = ({ navigation }) => {
     setCurrentField(null);
   };
 
-
   const handleSubmit = async () => {
-    if (whoDidYouCookFor === '' || costPerServe === '' || timeToCook === '' || meal === '' || tags === '') {
-      Alert.alert('Error', 'Please fill all fields');
-      return;
-    }
 
-    if (imageUrl === null) {
-      Alert.alert('Error', 'Please provide an image.');
-      return;
-    }
+    const fileName = `${user.id}/${Date.now()}.jpg`;
+    const fileData = decode(image?.base64);
+
+    const { error: uploadError } = await supabase.storage
+      .from('photos')
+      .upload(fileName, fileData, {
+        contentType: 'image/jpeg',
+        upsert: true,
+      });
+
+
+    const { data: publicUrlData } = supabase.storage
+      .from('photos')
+      .getPublicUrl(fileName);
+
+    const { error: dbError } = await supabase
+      .from('user_photos')
+      .insert([
+        {
+          user_id: user.id,
+          image_url: publicUrlData.publicUrl
+        }
+      ]);
 
     const { error } = await supabase
       .from('post')
       .insert({
-        image: imageUrl,
+        image: publicUrlData.publicUrl,
         cook_for: whoDidYouCookFor,
         cost: costPerServe,
         time: timeToCook,
@@ -100,13 +122,11 @@ const NewPostScreen = ({ navigation }) => {
           }
         ]
       );
-
     }
-
-
   };
 
-  const openDropdown = (field) => {
+  const openDropdown = (field, isEnabled) => {
+    if (!isEnabled) return;
     setCurrentField(field);
     setModalVisible(true);
   };
@@ -183,52 +203,62 @@ const NewPostScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
 
-        <ImageInput theme={theme} onPress={handleTakePhoto} image={image}/>
+        <ImageInput theme={theme} onPress={handleTakePhoto} image={image?.uri}/>
 
         <View style={styles.form}>
 
           <NewPostFieldButton
             label="Who did you cook for?"
             value={whoDidYouCookFor}
-            onPress={() => openDropdown('whoDidYouCookFor')}
+            onPress={() => openDropdown('whoDidYouCookFor', isImageComplete)}
             color="#FF6B6B"
             theme={theme}
+            disabled={!isImageComplete}
           />
 
           <NewPostFieldButton
             label="Cost per Serve?"
             value={costPerServe}
-            onPress={() => openDropdown('costPerServe')}
+            onPress={() => openDropdown('costPerServe', isWhoComplete)}
             color="#2196F3"
             theme={theme}
+            disabled={!isWhoComplete}
           />
 
           <NewPostFieldButton
             label="Time to cook?"
             value={timeToCook}
-            onPress={() => openDropdown('timeToCook')}
+            onPress={() => openDropdown('timeToCook', isCostComplete)}
             color="#4CAF50"
             theme={theme}
+            disabled={!isCostComplete}
           />
 
           <NewPostFieldButton
             label="Meal"
             value={meal}
-            onPress={() => openDropdown('meal')}
+            onPress={() => openDropdown('meal', isTimeComplete)}
             color="#FF6B6B"
             theme={theme}
+            disabled={!isTimeComplete}
           />
 
-          <TagsInput theme={theme} onPress={() => openDropdown('tags')} tags={tags} callbackfn={(tag, index) => (
-            <View key={index} style={[styles.tag, {
-              backgroundColor: theme.colors.border,
-              borderRadius: theme.borderRadius.sm,
-            }]}>
-              <Text style={[styles.tagText, {color: theme.colors.text}]}>
-                {tag}
-              </Text>
-            </View>
-          )}/>
+          <TagsInput
+            theme={theme}
+            onPress={() => openDropdown('tags', isMealComplete)}
+            tags={tags}
+            disabled={!isMealComplete}
+            callbackfn={(tag, index) => (
+              <View key={index} style={[styles.tag, {
+                backgroundColor: theme.colors.border,
+                borderRadius: theme.borderRadius.sm,
+              }]}>
+                <Text style={[styles.tagText, {color: theme.colors.text}]}>
+                  {tag}
+                </Text>
+              </View>
+            )}
+          />
 
           <NewPostModal
             visible={modalVisible}
@@ -243,6 +273,7 @@ const NewPostScreen = ({ navigation }) => {
             theme={theme}
             text="Create"
             onPress={handleSubmit}
+            disabled={!isAllComplete}
           />
 
         </View>

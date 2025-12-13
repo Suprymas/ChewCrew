@@ -2,7 +2,7 @@ import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 
 
-export function TagsInput({ theme, onPress, tags, callbackfn }) {
+export function TagsInput({ theme, onPress, tags, callbackfn, disabled=false }) {
   return <View style={styles.fieldContainer}>
     <View style={styles.labelRow}>
       <Text style={[styles.label, {color: "#2196F3"}]}>
@@ -16,7 +16,9 @@ export function TagsInput({ theme, onPress, tags, callbackfn }) {
         borderRadius: theme.borderRadius.md,
         justifyContent: "center",
         minHeight: 44,
+        opacity: disabled ? 0.5 : 1,
       }]}
+      disabled={disabled}
       onPress={onPress}
     >
       {tags.length > 0 ? (

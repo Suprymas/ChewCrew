@@ -1,7 +1,7 @@
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 
-const NewPostFieldButton = ({ label, value, onPress, color, theme }) => (
+const NewPostFieldButton = ({ label, value, onPress, color, theme, disabled=false }) => (
   <View style={styles.fieldContainer}>
     <View style={styles.labelRow}>
       <Text style={[styles.label, { color }]}>
@@ -14,7 +14,9 @@ const NewPostFieldButton = ({ label, value, onPress, color, theme }) => (
         borderColor: theme.colors.border,
         borderRadius: theme.borderRadius.md,
         justifyContent: 'center',
+        opacity: disabled ? 0.5 : 1,
       }]}
+      disabled={disabled}
       onPress={onPress}
     >
       <Text style={[

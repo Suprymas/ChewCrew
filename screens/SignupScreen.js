@@ -59,7 +59,7 @@ const SignUpScreen = ({ navigation }) => {
           Create Account
         </Text>
         <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-          Sign up to get started
+          Sign up to post and share your daily meals with your Friends and Family!
         </Text>
 
         <View style={styles.form}>
@@ -118,7 +118,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    marginBottom: 40,
+    marginVertical: 40,
+    textAlign: 'center',
   },
   form: {
     gap: 16,

@@ -36,8 +36,10 @@ const TabNavigator = () => {
         component={FeedScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
-            <View style={styles.tabIconContainer}>
-              <Text style={[styles.tabIcon, { fontSize: size + 4 }]}>👀</Text>
+            <View style={[styles.cameraIconContainer, {
+              backgroundColor: focused ? theme.colors.button : 'transparent',
+            }]}>
+              <Text style={styles.tabIcon}>👀</Text>
             </View>
           ),
         }}
@@ -52,9 +54,7 @@ const TabNavigator = () => {
               backgroundColor: focused ? theme.colors.button : 'transparent',
               borderColor: theme.colors.button,
             }]}>
-              <Text style={[styles.cameraIcon, {
-                fontSize: size + 8,
-              }]}>📷</Text>
+              <Text style={styles.cameraIcon}>📷</Text>
             </View>
           ),
         }}
@@ -65,8 +65,10 @@ const TabNavigator = () => {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
-            <View style={styles.tabIconContainer}>
-              <Text style={[styles.tabIcon, { fontSize: size + 4 }]}>👤</Text>
+            <View style={[styles.cameraIconContainer, {
+              backgroundColor: focused ? theme.colors.button : 'transparent',
+            }]}>
+              <Text style={styles.tabIcon}>👤</Text>
             </View>
           ),
         }}
@@ -81,19 +83,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabIcon: {
-    fontSize: 28,
+    fontSize: 32,
   },
   cameraIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
     marginTop: -10,
   },
   cameraIcon: {
-    fontSize: 32,
+    fontSize: 36,
   },
 });
 

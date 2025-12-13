@@ -1,39 +1,47 @@
 import 'react-native-url-polyfill/auto'; 
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
-import { decode } from 'base64-arraybuffer';
-import { 
-  Button, 
-  StyleSheet, 
-  Text, 
-  TouchableOpacity, 
-  View, 
-  Image, 
-  Alert, 
-  ActivityIndicator 
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Image,
+  Pressable
 } from 'react-native';
-import { supabase } from '../lib/supabase';
-import {useAuth} from "../context/AuthContext";
+import {RequestPermissionView} from "../components/RequestPermissionView";
 
-
-const CameraScreen = ({ route }) => {
-  const { onPhotoTaken, setUrl } = route.params;
-  const { user } = useAuth();
+const CameraScreen = ({ route, navigation }) => {
+  const { onPhotoTaken } = route.params;
   const [facing, setFacing] = useState('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedPhoto, setCapturedPhoto] = useState(null);
-  const [uploading, setUploading] = useState(false); 
   const cameraRef = useRef(null);
 
 
-  if (!permission) return <View />;
+  if (!permission) return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20}}>
+      <Text style={{color: '#FFF', fontSize: 18, marginBottom: 8}}>Permission was not granted!</Text>
+      <Text style={{color: '#FFF', fontSize: 16, marginBottom: 24}}>You cannot take pictures!</Text>
+
+      <Pressable
+        onPress={() => navigation.goBack()}
+        style={{
+          backgroundColor: '#FFF',
+          paddingHorizontal: 24,
+          paddingVertical: 12,
+          borderRadius: 8,
+          marginTop: 16
+        }}
+      >
+        <Text style={{color: '#000', fontSize: 16, fontWeight: '600'}}>Go Back</Text>
+      </Pressable>
+    </View>
+  );
 
   if (!permission.granted) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
-      </View>
+      <RequestPermissionView  requestPermission={requestPermission} navigation={navigation} />
     );
   }
 
@@ -57,80 +65,41 @@ const handleTakePhoto = async () => {
     }
   };
 
-const uploadToSupabase = async () => {
+const save = async () => {
     if (!capturedPhoto || !capturedPhoto.base64) return;
-    
-    setUploading(true);
 
-    try {
-      const fileName = `${user.id}/${Date.now()}.jpg`;
-
-      const fileData = decode(capturedPhoto.base64);
-
-      const { error: uploadError } = await supabase.storage
-        .from('photos')
-        .upload(fileName, fileData, {
-          contentType: 'image/jpeg',
-          upsert: true, 
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrlData } = supabase.storage
-        .from('photos')
-        .getPublicUrl(fileName);
-
-      const { error: dbError } = await supabase
-        .from('user_photos')
-        .insert([
-          { 
-            user_id: user.id, 
-            image_url: publicUrlData.publicUrl 
-          }
-        ]);
-
-      if (dbError) throw dbError;
-      onPhotoTaken(capturedPhoto.uri);
-      setUrl(publicUrlData.publicUrl);
-      Alert.alert("Success", "Photo uploaded successfully!");
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Upload Failed", error.message);
-    } finally {
-      setUploading(false);
-      setCapturedPhoto(null);
-    }
+    onPhotoTaken(capturedPhoto);
+    setCapturedPhoto(null);
+    navigation.goBack();
   };
 
   // --- Render Preview ---
   if (capturedPhoto) {
     return (
       <View style={styles.container}>
-        <Image 
-          source={{ uri: capturedPhoto.uri }} 
+        <Image
+          source={{ uri: capturedPhoto.uri }}
           style={styles.previewImage}
         />
-        
-        {uploading && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="#ffffff" />
-            <Text style={{color: 'white', marginTop: 10}}>Uploading...</Text>
-          </View>
-        )}
+
+        <Pressable
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Text style={styles.backButtonText}>x</Text>
+        </Pressable>
 
         <View style={styles.previewButtonContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.button, styles.retakeButton]}
             onPress={() => setCapturedPhoto(null)}
-            disabled={uploading}
           >
             <Text style={styles.buttonText}>Retake</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.button, styles.confirmButton, uploading && styles.disabledButton]}
-            onPress={uploadToSupabase} 
-            disabled={uploading}
+
+          <TouchableOpacity
+            style={[styles.button, styles.confirmButton]}
+            onPress={save}
           >
             <Text style={styles.buttonText}>Confirm</Text>
           </TouchableOpacity>
@@ -142,39 +111,22 @@ const uploadToSupabase = async () => {
   // --- Render Camera ---
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.iconButton} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip</Text>
-          </TouchableOpacity>
+      <CameraView style={styles.camera} facing={facing} ref={cameraRef}/>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.iconButton} onPress={toggleCameraFacing}>
+          <Text style={styles.text}>Flip</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity style={styles.shutterButton} onPress={handleTakePhoto}>
-            <View style={styles.shutterInner} />
-          </TouchableOpacity>
-          <View style={styles.iconButton} />
-        </View>
-      </CameraView>
+        <TouchableOpacity style={styles.shutterButton} onPress={handleTakePhoto}>
+          <View style={styles.shutterInner} />
+        </TouchableOpacity>
+        <View style={styles.iconButton} />
+      </View>
     </View>
   );
 }
 
 export default CameraScreen;
-
-const uriToBlob = (uri) => {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      resolve(xhr.response);
-    };
-    xhr.onerror = function (e) {
-      console.log(e);
-      reject(new TypeError("Network request failed"));
-    };
-    xhr.responseType = "blob";
-    xhr.open("GET", uri, true);
-    xhr.send(null);
-  });
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -192,6 +144,23 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    color: '#FFF',
+    fontSize: 24,
+    fontWeight: '600',
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -255,7 +224,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
   },
   disabledButton: {
-    backgroundColor: '#A5D6A7', 
+    backgroundColor: '#A5D6A7',
   },
   buttonText: {
     color: 'white',
