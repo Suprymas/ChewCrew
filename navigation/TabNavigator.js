@@ -32,7 +32,7 @@ const TabNavigator = () => {
       }}
     >
       <Tab.Screen
-        name="Feed"
+        name="FeedScreen"
         component={FeedScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (

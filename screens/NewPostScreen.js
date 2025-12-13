@@ -13,9 +13,10 @@ import {ImageInput} from "../components/ImageInput";
 import {NewPostModal} from "../components/NewPostModal";
 import {TagsInput} from "../components/TagsInput";
 import {WhiteMainButton} from "../components/WhiteMainButton";
-import {supabase} from "../lib/supabase";
 import {useAuth} from "../context/AuthContext";
 import {decode} from "base64-arraybuffer";
+import postService from "../services/PostService";
+import fetchService from "../services/FetchService";
 
 const NewPostScreen = ({ navigation }) => {
   const { theme } = useTheme();
@@ -72,41 +73,31 @@ const NewPostScreen = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-
     const fileName = `${user.id}/${Date.now()}.jpg`;
     const fileData = decode(image?.base64);
 
-    const { error: uploadError } = await supabase.storage
-      .from('photos')
-      .upload(fileName, fileData, {
-        contentType: 'image/jpeg',
-        upsert: true,
-      });
+    const { error: bucketError } = await postService.uploadToBucket('photos', fileName, fileData,{
+      contentType: 'image/jpeg',
+      upsert: true,
+    });
 
+    const publicUrlData  = fetchService.getPublicUrl('photos', fileName)
 
-    const { data: publicUrlData } = supabase.storage
-      .from('photos')
-      .getPublicUrl(fileName);
+    const errorInsert = await postService.insertData('user_photos', [
+      {
+        user_id: user.id,
+        image_url: publicUrlData.publicUrl
+      }
+    ])
 
-    const { error: dbError } = await supabase
-      .from('user_photos')
-      .insert([
-        {
-          user_id: user.id,
-          image_url: publicUrlData.publicUrl
-        }
-      ]);
-
-    const { error } = await supabase
-      .from('post')
-      .insert({
-        image: publicUrlData.publicUrl,
-        cook_for: whoDidYouCookFor,
-        cost: costPerServe,
-        time: timeToCook,
-        meal: meal,
-        tags: tags
-      })
+    const error = await postService.insertData('post', {
+      image: publicUrlData.publicUrl,
+      cook_for: whoDidYouCookFor,
+      cost: costPerServe,
+      time: timeToCook,
+      meal: meal,
+      tags: tags
+    })
 
     if (error) {
       console.error('Error', error);

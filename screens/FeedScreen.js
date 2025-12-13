@@ -10,9 +10,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
-import { supabase } from '../lib/supabase';
 import PostElement from "../components/PostElement";
-
+import fetchService from "../services/FetchService";
 
 const FeedScreen = () => {
   const { theme } = useTheme();
@@ -25,7 +24,7 @@ const FeedScreen = () => {
   const fetchFeed = async () => {
     try {
 
-      const { data, error } = await supabase.rpc('get_feed_from_crews');
+      const { data, error } = await fetchService.callRPC('get_feed_from_crews');
 
       if (error) {
         throw error;

@@ -13,7 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import { supabase } from '../lib/supabase';
+import postService from "../services/PostService";
 
 const JoinCrewScreen = ({ navigation }) => {
   const { theme } = useTheme();
@@ -32,56 +32,17 @@ const JoinCrewScreen = ({ navigation }) => {
     Keyboard.dismiss();
 
     try {
-      // 1. Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Please log in first.");
-
-      // 2. Find the crew associated with this code
-      // We use .maybeSingle() instead of .single() to avoid an error if 0 rows are found
-      const { data: crew, error: crewError } = await supabase
-        .from('crew')
-        .select('id, name, icon')
-        .eq('access_code', code.toUpperCase()) // Ensure code is uppercase
-        .maybeSingle();
+      const { data: crew, error: crewError } = await postService.postRPC('join_crew', {
+        access_code_input: code.toUpperCase()
+      })
 
       if (crewError) throw crewError;
 
-      if (!crew) {
-        Alert.alert('Crew Not Found', 'No crew found with that access code. Please check and try again.');
-        setLoading(false);
-        return;
-      }
-
-      // 3. Check if user is ALREADY a member
-      const { data: existingMember, error: checkError } = await supabase
-        .from('crew_members')
-        .select('id')
-        .eq('crew', crew.id)
-        .eq('member', user.id)
-        .maybeSingle();
-
-      if (existingMember) {
-        Alert.alert('Already Joined', `You are already a member of ${crew.name}!`);
-        setLoading(false);
-        return;
-      }
-
-      // 4. Join the crew (Insert into crew_members)
-      const { error: joinError } = await supabase
-        .from('crew_members')
-        .insert({
-          crew: crew.id,
-          member: user.id
-        });
-
-      if (joinError) throw joinError;
-
-      // 5. Success
       Alert.alert(
         'Welcome Aboard!',
-        `You have successfully joined ${crew.icon || ''} ${crew.name}`,
+        `You have successfully joined!`,
         [
-          { text: "OK", onPress: () => navigation.navigate('Feed') }
+          { text: "OK", onPress: () => navigation.goBack()}
         ]
       );
 

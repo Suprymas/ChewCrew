@@ -11,9 +11,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import RegularTextInput from "../components/RegularTextInput";
 import * as Clipboard from 'expo-clipboard';
-import { supabase } from "../lib/supabase";
+import {useAuth} from "../context/AuthContext";
+import postService from "../services/PostService";
 
 const CrewCreationScreen = ({ navigation }) => {
+  const { user } = useAuth();
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -40,28 +42,17 @@ const CrewCreationScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error("No user found. Please log in.");
-      }
-      // 1. Insert and use .select() to get the auto-generated data back
-      const { data, error } = await supabase
-        .from('crew')
-        .insert({
-          name: crewName.trim(), 
-          icon: selectedEmoji,
-          creator: user.id
-        })
-        .select(); 
+      const { data, error } = await postService.createCrew({
+        name: crewName,
+        icon: selectedEmoji,
+        creatorId: user.id
+      });
 
       if (error) throw error;
 
-      if (data && data.length > 0) {
-        const newCrew = data[0];
-        setAccessCode(newCrew.access_code);
+      if (data) {
+        setAccessCode(data.access_code);
         setIsCreated(true);
-        Alert.alert('Success!', 'Crew created successfully.');
       }
     } catch (error) {
       console.error('Error creating crew:', error);
@@ -74,7 +65,6 @@ const CrewCreationScreen = ({ navigation }) => {
   const handleCopyCode = async () => {
     if (accessCode) {
       await Clipboard.setStringAsync(accessCode);
-      Alert.alert('Copied', 'Access code copied to clipboard!');
     }
   };
 
