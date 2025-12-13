@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { supabase } from '../lib/supabase';
+import authService from '../services/AuthService';
 
 const AuthContext = createContext({});
 
@@ -8,14 +8,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    authService.getSession().then(({ user }) => {
+      setUser(user);
       setLoading(false);
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const subscription = authService.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -24,36 +22,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signUp = async (email, password) => {
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      return { data, error };
-    } catch (error) {
-      return { data: null, error };
-    }
+    const { user: newUser, error } = await authService.signUp(email, password);
+    return { data: { user: newUser }, error };
   };
 
   const signIn = async (email, password) => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      return { data, error };
-    } catch (error) {
-      return { data: null, error };
-    }
+    const { user: signedInUser, error } = await authService.signIn(email, password);
+    return { data: { user: signedInUser }, error };
   };
 
   const signOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      return { error };
-    } catch (error) {
-      return { error };
-    }
+    const { success, error } = await authService.signOut();
+    return { error };
   };
 
   const value = {
