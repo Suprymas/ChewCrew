@@ -6,7 +6,9 @@ import {
   FlatList,
   RefreshControl,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
@@ -51,6 +53,9 @@ const FeedScreen = ({ navigation  }) => {
     fetchFeed();
   };
 
+  const handleNotifications = () => {
+    console.log('Notifications pressed');
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -58,6 +63,16 @@ const FeedScreen = ({ navigation  }) => {
         <Text style={[styles.feedTitle, { color: theme.colors.text }]}>
           Your Crew Feed
         </Text>
+        <TouchableOpacity
+          style={styles.notificationButton}
+          onPress={handleNotifications}
+        >
+          <Ionicons
+            name="notifications-outline"
+            size={22}
+            color={theme.colors.text}
+          />
+        </TouchableOpacity>
       </View>
 
       {loading && !refreshing ? (
@@ -95,12 +110,15 @@ const styles = StyleSheet.create({
   screenHeader: {
     paddingHorizontal: 20,
     paddingBottom: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   feedTitle: {
     fontSize: 22,
-    fontWeight: '800', // Heavy bold for BeReal look
+    fontWeight: '800',
+  },
+  notificationButton: {
+    padding: 4,
   },
   loadingContainer: {
     flex: 1,
