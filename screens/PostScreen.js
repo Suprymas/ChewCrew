@@ -8,12 +8,13 @@ import {
   TouchableOpacity,
   Dimensions,
   Modal,
-  StatusBar,
+  StatusBar, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {WhiteMainButton} from "../components/WhiteMainButton";
 import {useTheme} from "../context/ThemeContext";
+import postService from "../services/PostService";
 
 const { width, height } = Dimensions.get('window');
 const IMAGE_HEIGHT = width * (4 / 3); // 3:4 aspect ratio (vertical)
@@ -23,6 +24,23 @@ const RecipeDetailScreen = ({ navigation, route }) => {
   const { theme } = useTheme();
   const { item } = route.params;
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
+  console.log(item)
+  async function handlePoke() {
+    try {
+      const errorData = await postService.insertData('poke', {
+        poked_person: item.creator,
+        post: item.post_id,
+      })
+
+      if (errorData) throw errorData;
+
+      Alert.alert(
+        "Person Was Poked!"
+      )
+    } catch (error) {
+      return error;
+    }
+  }
 
   return (
     <View style={[styles.container, {
@@ -91,6 +109,7 @@ const RecipeDetailScreen = ({ navigation, route }) => {
             theme={theme}
             text={'Poke for recipe'}
             disabled={false}
+            onPress={() => handlePoke()}
           />
         </View>
       </ScrollView>

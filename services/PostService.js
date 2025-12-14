@@ -52,11 +52,12 @@ class PostService {
       const { error } = await supabase
         .from(table)
         .insert(data)
-
       if (error) throw error;
+
     } catch (error) {
       return error;
     }
+    return null;
   }
 }
 
