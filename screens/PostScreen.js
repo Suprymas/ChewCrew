@@ -12,12 +12,15 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {useSafeAreaInsets} from "react-native-safe-area-context";
+import {WhiteMainButton} from "../components/WhiteMainButton";
+import {useTheme} from "../context/ThemeContext";
 
 const { width, height } = Dimensions.get('window');
 const IMAGE_HEIGHT = width * (4 / 3); // 3:4 aspect ratio (vertical)
 
 const RecipeDetailScreen = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
+  const { theme } = useTheme();
   const { item } = route.params;
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
 
@@ -37,9 +40,6 @@ const RecipeDetailScreen = ({ navigation, route }) => {
             User {item.creator.slice(0, 4)}...
           </Text>
         </View>
-        <TouchableOpacity style={styles.menuButton}>
-          <Ionicons name="ellipsis-vertical" size={24} color="white" />
-        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -82,9 +82,21 @@ const RecipeDetailScreen = ({ navigation, route }) => {
             </View>
           </View>
         </View>
+
+        <View style={{
+          paddingHorizontal: 15,
+          paddingBottom: 15,
+        }}>
+          <WhiteMainButton
+            theme={theme}
+            text={'Poke for recipe'}
+            disabled={false}
+          />
+        </View>
       </ScrollView>
 
-      {/* Full Screen Image Modal */}
+
+
       <Modal
         visible={isImageFullScreen}
         transparent={true}
@@ -163,9 +175,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#FFF',
-  },
-  menuButton: {
-    padding: 4,
   },
   scrollView: {
     flex: 1,
