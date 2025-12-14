@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,13 +8,14 @@ import {
   TouchableOpacity,
   Dimensions,
   Modal,
-  StatusBar, Alert,
+  StatusBar, Alert, ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {WhiteMainButton} from "../components/WhiteMainButton";
 import {useTheme} from "../context/ThemeContext";
 import postService from "../services/PostService";
+import FetchService from "../services/FetchService";
 
 const { width, height } = Dimensions.get('window');
 const IMAGE_HEIGHT = width * (4 / 3); // 3:4 aspect ratio (vertical)
@@ -22,9 +23,32 @@ const IMAGE_HEIGHT = width * (4 / 3); // 3:4 aspect ratio (vertical)
 const RecipeDetailScreen = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
-  const { item } = route.params;
+  let { item } = route.params;
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
-  console.log(item)
+  const [loading, setLoading] = useState(false);
+  const [post, setPost] = useState(item);
+
+  useEffect(() => {
+    if (item.image === undefined) {
+      async function getPost() {
+        try {
+          setLoading(true);
+          const { data, error } = await FetchService.fetchTableSingleRowById('post', item.id)
+
+          if (error) throw error;
+          item.image = data.image;
+          setPost(data);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      getPost();
+    }
+  }, [])
+
   async function handlePoke() {
     try {
       const errorData = await postService.insertData('poke', {
@@ -42,6 +66,14 @@ const RecipeDetailScreen = ({ navigation, route }) => {
     }
   }
 
+  if (item.image === undefined || loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center' }]}>
+        <ActivityIndicator color='white' size="large" />
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.container, {
       paddingTop: insets.top,
@@ -55,7 +87,7 @@ const RecipeDetailScreen = ({ navigation, route }) => {
           <View style={styles.avatar}>
           </View>
           <Text style={styles.username}>
-            User {item.creator.slice(0, 4)}...
+            User {post.creator.slice(0, 4)}...
           </Text>
         </View>
       </View>
@@ -66,8 +98,8 @@ const RecipeDetailScreen = ({ navigation, route }) => {
           onPress={() => setIsImageFullScreen(true)}
           activeOpacity={0.9}
         >
-          {item.image ? (
-            <Image source={{ uri: item.image }} style={styles.recipeImage} resizeMode="cover" />
+          {post.image ? (
+            <Image source={{ uri: post.image }} style={styles.recipeImage} resizeMode="cover" />
           ) : (
             <View style={styles.imagePlaceholder}>
               <Ionicons name="image-outline" size={60} color="#999" />
@@ -78,25 +110,25 @@ const RecipeDetailScreen = ({ navigation, route }) => {
         <View style={styles.infoSection}>
           <View style={styles.row}>
             <View style={[styles.infoBadge, styles.visibilityBadge]}>
-              <Text style={styles.badgeText}>Cooking for {item.cook_for}</Text>
+              <Text style={styles.badgeText}>Cooking for {post.cook_for}</Text>
             </View>
             <View style={[styles.infoBadge, styles.costBadge]}>
-              <Text style={styles.badgeText}>Cost {item.cost}</Text>
+              <Text style={styles.badgeText}>Cost {post.cost}</Text>
             </View>
           </View>
 
           <View style={styles.row}>
             <View style={[styles.infoBadge, styles.timeBadge]}>
-              <Text style={styles.badgeText}>Took {item.time_text}</Text>
+              <Text style={styles.badgeText}>Took {post.time_text}</Text>
             </View>
             <View style={[styles.infoBadge, styles.categoryBadge]}>
-              <Text style={styles.badgeText}>{item.meal}</Text>
+              <Text style={styles.badgeText}>{post.meal}</Text>
             </View>
           </View>
 
           <View style={styles.centerRow}>
             <View style={[styles.infoBadge, styles.tagsBadge]}>
-              <Text style={styles.badgeText}>{JSON.parse(item?.tags).join(', ')}</Text>
+              <Text style={styles.badgeText}>{JSON.parse(post?.tags).join(', ')}</Text>
             </View>
           </View>
         </View>
@@ -136,9 +168,9 @@ const RecipeDetailScreen = ({ navigation, route }) => {
             activeOpacity={1}
             onPress={() => setIsImageFullScreen(false)}
           >
-            {item.image ? (
+            {post.image ? (
               <Image
-                source={{ uri: item.image }}
+                source={{ uri: post.image }}
                 style={styles.fullScreenImage}
                 resizeMode="contain"
               />

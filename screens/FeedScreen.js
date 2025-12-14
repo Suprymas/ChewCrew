@@ -54,7 +54,7 @@ const FeedScreen = ({ navigation  }) => {
   };
 
   const handleNotifications = () => {
-    console.log('Notifications pressed');
+    navigation.navigate('Notifications');
   };
 
   return (

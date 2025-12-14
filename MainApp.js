@@ -13,6 +13,7 @@ import CameraScreen from './screens/CameraScreen';
 import CreateCrewScreen from "./screens/CreateCrewScreen";
 import JoinCrewScreen from './screens/JoinCrewScreen';
 import RecipeDetailScreen from "./screens/PostScreen";
+import NotificationScreen from "./screens/NotificationScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -46,6 +47,7 @@ const MainApp = () => {
           <Stack.Screen name="JoinCrew" component={JoinCrewScreen}/>
           <Stack.Screen name="Camera" component={CameraScreen} />
           <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
+          <Stack.Screen name="Notifications" component={NotificationScreen} />
         </>
       ) : (
         // Auth Stack
