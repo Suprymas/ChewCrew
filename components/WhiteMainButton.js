@@ -1,7 +1,7 @@
 import React from "react";
 import {Pressable, StyleSheet, Text} from "react-native";
 
-export const WhiteMainButton = ({onPress, loading, theme, text}) => {
+export const WhiteMainButton = ({onPress, loading, theme, text, disabled}) => {
   return (
     <Pressable
       style={[
@@ -10,9 +10,12 @@ export const WhiteMainButton = ({onPress, loading, theme, text}) => {
           backgroundColor: theme.colors.button,
           borderRadius: theme.borderRadius.lg,
         },
+        disabled && {
+          opacity: 0.5,
+        }
       ]}
       onPress={onPress}
-      disabled={loading}
+      disabled={loading || disabled}
     >
       <Text style={[styles.buttonText, { color: theme.colors.buttonText }]}>
         {text}

@@ -13,17 +13,16 @@ import { useFocusEffect } from '@react-navigation/native';
 import PostElement from "../components/PostElement";
 import fetchService from "../services/FetchService";
 
-const FeedScreen = () => {
+const FeedScreen = ({ navigation  }) => {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
-  
+
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchFeed = async () => {
     try {
-
       const { data, error } = await fetchService.callRPC('get_feed_from_crews');
 
       if (error) {
@@ -70,7 +69,7 @@ const FeedScreen = () => {
           data={posts}
           keyExtractor={(item) => item.post_id.toString()}
           renderItem={({ item }) => (
-            <PostElement item={item} theme={theme} />
+            <PostElement item={item} theme={theme} navigation={navigation} />
           )}
           contentContainerStyle={styles.listContent}
           refreshControl={

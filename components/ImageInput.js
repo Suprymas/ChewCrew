@@ -14,7 +14,10 @@ export function ImageInput({ theme, onPress, image }) {
     {image ? (
       <Image source={{uri: image }} style={styles.image}/>
     ) : (
-      <Text style={styles.cameraIcon}>📷</Text>
+      <>
+        <Text style={{color: '#FFF', fontSize: 18}}>Add an Image!</Text>
+        <Text style={styles.cameraIcon}>📷</Text>
+      </>
     )}
   </TouchableOpacity>;
 }

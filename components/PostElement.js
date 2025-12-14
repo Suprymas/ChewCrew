@@ -1,11 +1,10 @@
-import {Dimensions, Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {BlurView} from "expo-blur";
+import {Dimensions, Image, Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-const PostElement = ({ item, theme }) => {
+const PostElement = ({ item, theme, navigation }) => {
   const dateStr = "Today"; // dynamic date logic would go here
   const tags = JSON.parse(item?.tags);
 
@@ -28,7 +27,11 @@ const PostElement = ({ item, theme }) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.imageCard}>
+      <Pressable
+        onPress={() => {navigation.navigate("RecipeDetail", {
+          item: item,
+        })}}
+        style={styles.imageCard}>
         <Image
           source={{ uri: item.image }}
           style={styles.mainImage}
@@ -54,7 +57,7 @@ const PostElement = ({ item, theme }) => {
             </View>
           </View>
         </View>
-      </View>
+      </Pressable>
 
       <View style={styles.captionArea}>
         {item.cost && (
