@@ -1,6 +1,5 @@
 import {Dimensions, Image, Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
-import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -21,10 +20,6 @@ const PostElement = ({ item, theme, navigation }) => {
             </Text>
           </View>
         </View>
-
-        <TouchableOpacity>
-          <Ionicons name="ellipsis-horizontal" size={20} color={theme.colors.textSecondary} />
-        </TouchableOpacity>
       </View>
 
       <Pressable

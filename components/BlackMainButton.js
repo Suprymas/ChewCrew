@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     marginTop: 8,
+    width: '100%',
   },
   linkText: {
     fontSize: 14,

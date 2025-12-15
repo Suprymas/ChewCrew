@@ -59,6 +59,16 @@ class PostService {
     }
     return null;
   }
+
+  async updateAuthTable(data) {
+    try {
+      const { error } = await supabase.auth.updateUser(data);
+      if (error) throw error;
+      return { error: null };
+    } catch (error) {
+      return { error: error };
+    }
+  }
 }
 
 export default new PostService();
