@@ -25,7 +25,7 @@ const FeedScreen = ({ navigation  }) => {
 
   const fetchFeed = async () => {
     try {
-      const { data, error } = await fetchService.callRPC('get_feed_from_crews');
+      const { data, error } = await fetchService.callRPC('get_feed_with_display_names');
 
       if (error) {
         throw error;

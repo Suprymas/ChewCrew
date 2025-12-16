@@ -1,11 +1,40 @@
-import {Dimensions, Image, Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import React from "react";
+import {Dimensions, Image, Pressable, StyleSheet, Text, View} from "react-native";
+import React, { useMemo } from "react";
 
 const { width } = Dimensions.get('window');
+//helper function to format time ago
+const formatTimeAgo = (dateString) => {
+  if (!dateString) return '';
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+
+  if (seconds < 60) return 'Just now';
+  
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  
+  if (hours < 48) return 'Yesterday';
+  
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
 
 const PostElement = ({ item, theme, navigation }) => {
-  const dateStr = "Today"; // dynamic date logic would go here
-  const tags = JSON.parse(item?.tags);
+  
+
+  const dateStr = useMemo(() => formatTimeAgo(item.created_at), [item.created_at]);
+  const tags = useMemo(() => {
+    if (Array.isArray(item?.tags)) return item.tags;
+    try {
+      return item?.tags ? JSON.parse(item.tags) : [];
+    } catch (e) {
+      return item?.tags ? [item.tags] : [];
+    }
+  }, [item?.tags]);
 
   return (
     <View style={styles.postContainer}>
@@ -13,7 +42,7 @@ const PostElement = ({ item, theme, navigation }) => {
         <View style={styles.userInfo}>
           <View>
             <Text style={[styles.userName, { color: theme.colors.text }]}>
-              User {item.creator.slice(0, 4)}...
+               {item.creator}
             </Text>
             <Text style={[styles.locationText, { color: theme.colors.textSecondary }]}>
               Dornbirn, Austria • {dateStr}
@@ -43,9 +72,9 @@ const PostElement = ({ item, theme, navigation }) => {
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>cooking for {item.cook_for}</Text>
                 </View>
-                {item.time && (
+                {item.time_text && (
                   <View style={[styles.badge, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                    <Text style={styles.badgeText}>{item.time}</Text>
+                    <Text style={styles.badgeText}>{item.time_text}</Text>
                   </View>
                 )}
               </View>
@@ -60,7 +89,7 @@ const PostElement = ({ item, theme, navigation }) => {
             Est. Cost: {item.cost}
           </Text>
         )}
-        {item.tags && (
+        {tags.length > 0 && (
           <Text style={[styles.tagsText, { color: theme.colors.textSecondary }]}>
             {tags.join(', ')}
           </Text>
