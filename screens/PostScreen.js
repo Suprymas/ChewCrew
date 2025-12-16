@@ -51,18 +51,20 @@ const RecipeDetailScreen = ({ navigation, route }) => {
 
   async function handlePoke() {
     try {
-      const errorData = await postService.insertData('poke', {
-        poked_person: item.creator,
-        post: item.post_id,
-      })
+      const targetUserId = item.creator_uuid || item.creator; 
+      const targetPostId = item.post_id || item.id; 
 
-      if (errorData) throw errorData;
+      const response = await postService.insertData('poke', {
+        poked_person: targetUserId, 
+        post: targetPostId,
+      });
+      const error = response?.error ?? response;
+      if (error) throw error;
 
-      Alert.alert(
-        "Person Was Poked!"
-      )
+      Alert.alert("Person Was Poked!");
+      
     } catch (error) {
-      return error;
+      console.error("Poke failed:", error); 
     }
   }
 
