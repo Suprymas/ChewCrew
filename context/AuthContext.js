@@ -21,8 +21,8 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email, password) => {
-    const { user: newUser, error } = await authService.signUp(email, password);
+  const signUp = async (email, password, displayName) => {
+    const { user: newUser, error } = await authService.signUp(email, password, displayName);
     return { data: { user: newUser }, error };
   };
 

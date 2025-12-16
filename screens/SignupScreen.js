@@ -21,11 +21,12 @@ const SignUpScreen = ({ navigation }) => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword || !displayName) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -41,7 +42,7 @@ const SignUpScreen = ({ navigation }) => {
     }
 
     setLoading(true);
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email, password, displayName);
     setLoading(false);
 
     if (error) {
@@ -61,8 +62,15 @@ const SignUpScreen = ({ navigation }) => {
         <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
           Sign up to post and share your daily meals with your Friends and Family!
         </Text>
+        
 
         <View style={styles.form}>
+          <RegularTextInput
+            value={displayName}
+            theme={theme}
+            placeholder="Display Name"
+            onChangeText={setDisplayName}
+          />
           <RegularTextInput
             value={email}
             theme={theme}
@@ -95,7 +103,7 @@ const SignUpScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('Login')}
             loading={loading}
             theme={theme}
-            text={'Sign Up'}
+            text={'Log In'}
           />
         </View>
       </View>
