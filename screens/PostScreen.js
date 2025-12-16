@@ -85,9 +85,12 @@ const RecipeDetailScreen = ({ navigation, route }) => {
         </TouchableOpacity>
         <View style={styles.headerUser}>
           <View style={styles.avatar}>
+            <Text style={{ fontSize: 20 }}>
+              {post.creator_icon || '👤'}
+            </Text>
           </View>
           <Text style={styles.username}>
-            User {post.creator.slice(0, 4)}...
+            {post.creator} 
           </Text>
         </View>
       </View>
