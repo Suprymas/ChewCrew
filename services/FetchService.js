@@ -1,9 +1,9 @@
 import {supabase} from "../lib/supabase";
 
 class FetchService {
-  async callRPC(funcName) {
+  async callRPC(funcName, params = {}) {
     try {
-      const {data, error} = await supabase.rpc(funcName);
+      const {data, error} = await supabase.rpc(funcName, params);
 
       if (error) throw error;
 

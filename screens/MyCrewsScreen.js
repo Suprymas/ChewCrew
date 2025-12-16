@@ -19,7 +19,6 @@ const MyCrewsScreen = ({ navigation }) => {
   const fetchCrews = async () => {
     try {
       setLoading(true);
-
       const { data, error } = await fetchService.callRPC('get_my_crews');
       if (error) throw error;
       setCrews(data || []);
@@ -39,8 +38,10 @@ const MyCrewsScreen = ({ navigation }) => {
 
 
   const handleCrewPress = (crew) => {
-    console.log('Crew pressed:', crew.name);
-  };
+  navigation.navigate('CrewMembers', { 
+      crewId: crew.crew_id, 
+      crewName: crew.name 
+  });  };
 
   const renderCrewItem = ({ item }) => (
     <TouchableOpacity
