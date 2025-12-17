@@ -107,7 +107,7 @@ const NewPostScreen = ({ navigation }) => {
         'Successfully created post', [
           {
             text: 'Ok',  onPress: () => {
-              navigation.goBack();
+              navigation.navigate("FeedScreen")
               resetForm();
             }
           }
