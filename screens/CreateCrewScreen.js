@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import RegularTextInput from "../components/RegularTextInput";
 import * as Clipboard from 'expo-clipboard';
@@ -73,14 +74,26 @@ const CrewCreationScreen = ({ navigation }) => {
   };
 
   return (
+    
+    
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={[styles.header, {
         paddingTop: insets.top + 16,
         borderBottomColor: theme.colors.border
       }]}>
+          <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
+        </TouchableOpacity>
+        
         <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
           New Crew
         </Text>
+
+      
+
 
         {!isCreated ? (
           <TouchableOpacity
@@ -225,10 +238,18 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     borderBottomWidth: 1,
   },
+  backButton: {
+    padding: 4, 
+    marginRight: 8,
+  },
+
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
+    flex: 1, 
+    textAlign: 'center',
   },
+  
   createButton: {
     width: 32,
     height: 32,
